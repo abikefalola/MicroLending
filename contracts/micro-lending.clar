@@ -45,3 +45,35 @@
         err-insufficient-balance
     )
 )
+
+(define-private (calculate-repayment-amount (principal uint) (interest-rate uint) (duration uint))
+    (let (
+        (interest-amount (/ (* principal (* interest-rate duration)) u10000))
+    )
+    (+ principal interest-amount))
+)
+
+;; Public Functions
+(define-public (request-loan (amount uint) (interest-rate uint) (duration uint) (purpose (string-ascii 50)))
+    (let (
+        (loan-id (var-get loan-nonce))
+        (credit-score (default-to u0 (get score (map-get? CreditScores {user: tx-sender}))))
+    )
+    (try! (asserts! (>= credit-score u600) (err u105)))
+    (map-set Loans
+        {loan-id: loan-id}
+        {
+            borrower: tx-sender,
+            amount: amount,
+            interest-rate: interest-rate,
+            duration: duration,
+            start-height: block-height,
+            end-height: (+ block-height duration),
+            status: "PENDING",
+            purpose: purpose,
+            credit-score: credit-score
+        }
+    )
+    (var-set loan-nonce (+ loan-id u1))
+    (ok loan-id))
+)
