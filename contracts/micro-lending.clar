@@ -108,3 +108,13 @@
     )
     (ok true))
 )
+
+(define-public (update-credit-score (user principal) (new-score uint))
+    (begin
+        (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+        (map-set CreditScores
+            {user: user}
+            {score: new-score}
+        )
+        (ok true))
+)
