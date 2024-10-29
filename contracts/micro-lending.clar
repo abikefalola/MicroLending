@@ -118,3 +118,16 @@
         )
         (ok true))
 )
+
+;; Read-Only Functions
+(define-read-only (get-loan (loan-id uint))
+    (map-get? Loans {loan-id: loan-id})
+)
+
+(define-read-only (get-credit-score (user principal))
+    (map-get? CreditScores {user: user})
+)
+
+(define-read-only (get-user-balance (user principal))
+    (map-get? UserBalances {user: user})
+)
