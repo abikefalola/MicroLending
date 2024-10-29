@@ -91,3 +91,20 @@
     )
     (ok true))
 )
+
+(define-public (repay-loan (loan-id uint))
+    (let (
+        (loan (unwrap! (map-get? Loans {loan-id: loan-id}) err-loan-not-found))
+        (repayment-amount (calculate-repayment-amount
+            (get amount loan)
+            (get interest-rate loan)
+            (get duration loan)))
+    )
+    (asserts! (is-eq (get borrower loan) tx-sender) err-unauthorized)
+    (try! (transfer-stx repayment-amount tx-sender contract-owner))
+    (map-set Loans
+        {loan-id: loan-id}
+        (merge loan {status: "REPAID"})
+    )
+    (ok true))
+)
