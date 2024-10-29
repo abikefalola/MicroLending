@@ -77,3 +77,17 @@
     (var-set loan-nonce (+ loan-id u1))
     (ok loan-id))
 )
+
+(define-public (fund-loan (loan-id uint))
+    (let (
+        (loan (unwrap! (map-get? Loans {loan-id: loan-id}) err-loan-not-found))
+        (amount (get amount loan))
+    )
+    (asserts! (is-eq (get status loan) "PENDING") err-already-funded)
+    (try! (transfer-stx amount tx-sender (get borrower loan)))
+    (map-set Loans
+        {loan-id: loan-id}
+        (merge loan {status: "ACTIVE"})
+    )
+    (ok true))
+)
