@@ -24,3 +24,24 @@
         credit-score: uint
     }
 )
+
+(define-map UserBalances
+    { user: principal }
+    { balance: uint }
+)
+
+(define-map CreditScores
+    { user: principal }
+    { score: uint }
+)
+
+;; Data Variables
+(define-data-var loan-nonce uint u0)
+
+;; Private Functions
+(define-private (transfer-stx (amount uint) (sender principal) (recipient principal))
+    (if (>= (stx-get-balance sender) amount)
+        (try! (stx-transfer? amount sender recipient))
+        err-insufficient-balance
+    )
+)
